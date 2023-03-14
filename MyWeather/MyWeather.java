@@ -1,5 +1,10 @@
 package MyWeather;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -7,30 +12,21 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.ArrayList;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
-public class MyWeatherTest {
-    public static void main(String[] args) throws IOException, ParseException {
-        Date date = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-
+public class MyWeather {
+    public static JSONArray getShortForecast(int posX, int posY, String baseDate, String baseTime, String serviceKey, int numOfTime) throws IOException, ParseException {
         String apiUrl = "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst";    //동네예보조회
 
         // 홈페이지에서 받은 키
-        String serviceKey = "A6z4dofotOGc96pa7%2FDl3WgE2cW1orNWcou7slmHGBqY9G1Z9LMaVoO1dETagYiNdaPI%2Fe6vGYftFK9e2EjEZA%3D%3D";
-        String nx = "55";    //위도
-        String ny = "124";    //경도
-        String baseDate = sdf.format(date);    //조회하고싶은 날짜
-        String baseTime = "1400";    //API 제공 시간
+
+        String nx = Integer.toString(posX);    //위도
+        String ny = Integer.toString(posY);    //경도
         String dataType = "json";    //타입 xml, json
-        String numOfRows = "240";    //한 페이지 결과 수
+        final int NUMBER_PER_DATE = 12;
+        String numOfRows = Integer.toString(NUMBER_PER_DATE * numOfTime);    //한 페이지 결과 수
 
         //동네예보 -- 전날 05시 부터 225개의 데이터를 조회하면 모레까지의 날씨를 알 수 있음
 
@@ -76,15 +72,17 @@ public class MyWeatherTest {
         JSONArray parse_item = (JSONArray) parse_items.get("item");
         //JSONObject item = (JSONObject) parse_item.get("item");
 
-        ArrayList<Integer> tempList = new ArrayList<>();
-        for (int i = 0; i < parse_item.size(); i++) {
-            JSONObject dataLine = (JSONObject) parse_item.get(i);
+        return parse_item;
+    }
+
+    public static ArrayList<Integer> getTempList(JSONArray data) {
+        ArrayList<Integer> result = new ArrayList<>();
+        for (int i = 0; i < data.size(); i++) {
+            JSONObject dataLine = (JSONObject) data.get(i);
             if (dataLine.get("category").toString().contains("TMP")) {
-                tempList.add(Integer.parseInt(dataLine.get("fcstValue").toString()));
+                result.add(Integer.parseInt(dataLine.get("fcstValue").toString()));
             }
         }
-        int max = Collections.max(tempList);
-        int min = Collections.min(tempList);
-        System.out.println("오늘의 최고 온도는 " + max + "도, 최저 온도는 " + min + "도 입니다.");
+        return result;
     }
 }

@@ -3,22 +3,35 @@ package MyWeather;
 import java.time.LocalDateTime;
 
 public class MyDate {
+    // 최근 초단기예보 발표시각 구하기
     public static LocalDateTime getRecentMicroForecastTime() {
-        LocalDateTime now = LocalDateTime.now();
-        int hour = now.getHour();
-        int minute = now.getMinute();
-        LocalDateTime newDateTime = LocalDateTime.now().withMinute(30);
-        if (minute < 30) {
-            if (hour == 0) {
-                newDateTime = newDateTime.minusDays(1); // 하루 전 예보 발표 날짜로 변경
-                newDateTime = newDateTime.withHour(23); // 23시로 설정
-            } else {
-                newDateTime = newDateTime.withHour(hour - 1);
-            }
-        }
-        return newDateTime;
+        return getMicroForecastTime(0);
     }
 
+    // 직전 초단기예보 발표시각 구하기
+    public static LocalDateTime getLastMicroForecastTime() {
+        return getMicroForecastTime(-1);
+    }
+
+    // 초단기예보 발표시각 구하기
+    public static LocalDateTime getMicroForecastTime(int hourIndex) {
+        LocalDateTime result = LocalDateTime.now().plusHours(hourIndex);
+        int hour = result.getHour();
+        int minute = result.getMinute();
+        final int REF_MINUTE = 30;
+        if (minute >= REF_MINUTE) {
+            result = result.withMinute(REF_MINUTE);
+        } else {
+            if (hour == 0) {
+                result = result.minusDays(1).withHour(23).withMinute(REF_MINUTE);
+            } else {
+                result = result.minusHours(1).withMinute(REF_MINUTE);
+            }
+        }
+        return result;
+    }
+
+    // 최근 단기예보 발표시각 구하기
     public static LocalDateTime getRecentShortForecastTime() {
         LocalDateTime result = LocalDateTime.now().withMinute(0);
         // 예보 발표 시간 계산
@@ -40,11 +53,13 @@ public class MyDate {
         return result;
     }
 
+    // 어제의 마지막 단기예보 발표시각 구하기
     public static LocalDateTime getYesterdayShortForecastTime() {
         LocalDateTime newDateTime = LocalDateTime.now().minusDays(1).withHour(23).withMinute(0);
         return newDateTime;
     }
 
+    // 최근 중기예보 발표시각 구하기
     public static LocalDateTime getRecentMidForecastTime() {
         LocalDateTime now = LocalDateTime.now();
         int hour = now.getHour();

@@ -17,19 +17,27 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class MyWeather {
+    // 초단기예보
+    public static JSONArray getMicroForecast(int posX, int posY, LocalDateTime baseDate, String serviceKey) throws IOException, ParseException {
+        String apiUrl = "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst";    //동네예보조회
+        final int NUMBER_MAX_TIME = 6;
+        final int NUMBER_PER_DATE = 10;
+        return getVillageForecast(posX, posY, baseDate, serviceKey, apiUrl, NUMBER_MAX_TIME * NUMBER_PER_DATE);
+    }
+
+    // 단기예보
     public static JSONArray getShortForecast(int posX, int posY, LocalDateTime baseDate, String serviceKey, int numOfTime) throws IOException, ParseException {
         String apiUrl = "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst";    //동네예보조회
+        final int NUMBER_PER_DATE = 12;
+        return getVillageForecast(posX, posY, baseDate, serviceKey, apiUrl, numOfTime * NUMBER_PER_DATE);
+    }
 
-        // 홈페이지에서 받은 키
-
+    // 동네예보 공통 모듈
+    public static JSONArray getVillageForecast(int posX, int posY, LocalDateTime baseDate, String serviceKey, String apiUrl, int numOfRows) throws IOException, ParseException {
         String nx = Integer.toString(posX);    //위도
         String ny = Integer.toString(posY);    //경도
         String dataType = "json";    //타입 xml, json
-        final int NUMBER_PER_DATE = 12;
-        String numOfRows = Integer.toString(NUMBER_PER_DATE * numOfTime);    //한 페이지 결과 수
-
-        //동네예보 -- 전날 05시 부터 225개의 데이터를 조회하면 모레까지의 날씨를 알 수 있음
-
+        String numberOfRows = Integer.toString(numOfRows);
         StringBuilder urlBuilder = new StringBuilder(apiUrl);
         urlBuilder.append("?" + URLEncoder.encode("ServiceKey", "UTF-8") + "=" + serviceKey);
         urlBuilder.append("&" + URLEncoder.encode("nx", "UTF-8") + "=" + URLEncoder.encode(nx, "UTF-8")); //경도
@@ -37,9 +45,9 @@ public class MyWeather {
         urlBuilder.append("&" + URLEncoder.encode("base_date", "UTF-8") + "=" + URLEncoder.encode(baseDate.format(DateTimeFormatter.ofPattern("yyyyMMdd")), "UTF-8")); /* 조회하고싶은 날짜*/
         urlBuilder.append("&" + URLEncoder.encode("base_time", "UTF-8") + "=" + URLEncoder.encode(baseDate.format(DateTimeFormatter.ofPattern("HHmm")), "UTF-8")); /* 조회하고싶은 시간 AM 02시부터 3시간 단위 */
         urlBuilder.append("&" + URLEncoder.encode("dataType", "UTF-8") + "=" + URLEncoder.encode(dataType, "UTF-8"));    /* 타입 */
-        urlBuilder.append("&" + URLEncoder.encode("numOfRows", "UTF-8") + "=" + URLEncoder.encode(numOfRows, "UTF-8"));    /* 한 페이지 결과 수 */
+        urlBuilder.append("&" + URLEncoder.encode("numOfRows", "UTF-8") + "=" + URLEncoder.encode(numberOfRows, "UTF-8"));    /* 한 페이지 결과 수 */
 
-        // GET방식으로 전송해서 파라미터 받아오기
+        // GET 방식으로 전송해서 파라미터 받아오기
         URL url = new URL(urlBuilder.toString());
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");

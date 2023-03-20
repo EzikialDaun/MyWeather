@@ -11,13 +11,13 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 
 public class MyWeather {
-    public static JSONArray getShortForecast(int posX, int posY, String baseDate, String baseTime, String serviceKey, int numOfTime) throws IOException, ParseException {
+    public static JSONArray getShortForecast(int posX, int posY, LocalDateTime baseDate, String serviceKey, int numOfTime) throws IOException, ParseException {
         String apiUrl = "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst";    //동네예보조회
 
         // 홈페이지에서 받은 키
@@ -34,8 +34,8 @@ public class MyWeather {
         urlBuilder.append("?" + URLEncoder.encode("ServiceKey", "UTF-8") + "=" + serviceKey);
         urlBuilder.append("&" + URLEncoder.encode("nx", "UTF-8") + "=" + URLEncoder.encode(nx, "UTF-8")); //경도
         urlBuilder.append("&" + URLEncoder.encode("ny", "UTF-8") + "=" + URLEncoder.encode(ny, "UTF-8")); //위도
-        urlBuilder.append("&" + URLEncoder.encode("base_date", "UTF-8") + "=" + URLEncoder.encode(baseDate, "UTF-8")); /* 조회하고싶은 날짜*/
-        urlBuilder.append("&" + URLEncoder.encode("base_time", "UTF-8") + "=" + URLEncoder.encode(baseTime, "UTF-8")); /* 조회하고싶은 시간 AM 02시부터 3시간 단위 */
+        urlBuilder.append("&" + URLEncoder.encode("base_date", "UTF-8") + "=" + URLEncoder.encode(baseDate.format(DateTimeFormatter.ofPattern("yyyyMMdd")), "UTF-8")); /* 조회하고싶은 날짜*/
+        urlBuilder.append("&" + URLEncoder.encode("base_time", "UTF-8") + "=" + URLEncoder.encode(baseDate.format(DateTimeFormatter.ofPattern("HHmm")), "UTF-8")); /* 조회하고싶은 시간 AM 02시부터 3시간 단위 */
         urlBuilder.append("&" + URLEncoder.encode("dataType", "UTF-8") + "=" + URLEncoder.encode(dataType, "UTF-8"));    /* 타입 */
         urlBuilder.append("&" + URLEncoder.encode("numOfRows", "UTF-8") + "=" + URLEncoder.encode(numOfRows, "UTF-8"));    /* 한 페이지 결과 수 */
 
@@ -75,7 +75,7 @@ public class MyWeather {
         return parse_item;
     }
 
-    public static ArrayList<Integer> getTempList(JSONArray data) {
+    public static ArrayList<Integer> getSimpleTempList(JSONArray data) {
         ArrayList<Integer> result = new ArrayList<>();
         for (int i = 0; i < data.size(); i++) {
             JSONObject dataLine = (JSONObject) data.get(i);
@@ -84,5 +84,38 @@ public class MyWeather {
             }
         }
         return result;
+    }
+
+    public static ArrayList<Integer> getTomorrowTempList(JSONArray data) {
+        ArrayList<Integer> result = new ArrayList<>();
+        String tomorrowDate = LocalDateTime.now().plusDays(1).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        for (int i = 0; i < data.size(); i++) {
+            JSONObject dataLine = (JSONObject) data.get(i);
+            if (dataLine.get("fcstDate").equals(tomorrowDate) && dataLine.get("category").toString().contains("TMP")) {
+                result.add(Integer.parseInt(dataLine.get("fcstValue").toString()));
+            }
+        }
+        return result;
+    }
+
+    // 오전, 오후, 최고, 최저 기온 구하기
+    public static TempMinMax getTempMinMax(ArrayList<Integer> data) {
+        final int HOUR_OF_DAY = 24;
+        ArrayList<Integer> tempListAm = new ArrayList<>(), tempListPm = new ArrayList<>();
+        int maxAm, minAm, maxPm, minPm;
+        // 오전 오후로 쪼개기
+        if (data.size() == HOUR_OF_DAY) {
+            for (int i = 0; i < (HOUR_OF_DAY / 2); i++) {
+                tempListAm.add(data.get(i));
+            }
+            for (int i = (HOUR_OF_DAY / 2); i < HOUR_OF_DAY; i++) {
+                tempListPm.add(data.get(i));
+            }
+        }
+        maxAm = Collections.max(tempListAm);
+        minAm = Collections.min(tempListAm);
+        maxPm = Collections.max(tempListPm);
+        minPm = Collections.min(tempListPm);
+        return new TempMinMax(maxAm, minAm, maxPm, minPm);
     }
 }

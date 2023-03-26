@@ -44,7 +44,7 @@ public class MyDate {
         // 17 18 19 -> 1700
         // 20 21 22 -> 2000
         int hour = result.getHour();
-        if (hour < 2 || hour == 23) { // 02시 이전 예보 발표 시간일 경우
+        if (hour < 2) { // 02시 이전 예보 발표 시간일 경우
             result = result.minusDays(1).withHour(23); // 하루 전 예보 발표 날짜로 변경
         } else {
             int newHour = (((hour + 1) / 3) * 3) - 1;
@@ -61,16 +61,15 @@ public class MyDate {
 
     // 최근 중기예보 발표시각 구하기
     public static LocalDateTime getRecentMidForecastTime() {
-        LocalDateTime now = LocalDateTime.now();
-        int hour = now.getHour();
-        LocalDateTime newDateTime = LocalDateTime.now().withMinute(0);
+        LocalDateTime result = LocalDateTime.now().withMinute(0);
+        int hour = result.getHour();
         if (hour < 6) {
-            newDateTime = newDateTime.minusDays(1).withHour(18);
+            result = result.minusDays(1).withHour(18);
         } else if (hour < 18) {
-            newDateTime = newDateTime.withHour(6);
+            result = result.withHour(6);
         } else {
-            newDateTime = newDateTime.withHour(18);
+            result = result.withHour(18);
         }
-        return newDateTime;
+        return result;
     }
 }

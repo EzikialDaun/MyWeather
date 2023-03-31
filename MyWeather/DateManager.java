@@ -2,7 +2,7 @@ package MyWeather;
 
 import java.time.LocalDateTime;
 
-public class MyDate {
+public class DateManager {
   // 최근 초단기예보 발표시각 구하기
   public static LocalDateTime getRecentMicroForecastTime() {
     return getMicroForecastTime(0);
@@ -55,8 +55,7 @@ public class MyDate {
 
   // 어제의 마지막 단기예보 발표시각 구하기
   public static LocalDateTime getYesterdayShortForecastTime() {
-    LocalDateTime newDateTime = LocalDateTime.now().minusDays(1).withHour(23).withMinute(0);
-    return newDateTime;
+    return LocalDateTime.now().minusDays(1).withHour(23).withMinute(0);
   }
 
   // 최근 중기예보 발표시각 구하기

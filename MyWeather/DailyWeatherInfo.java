@@ -13,6 +13,8 @@ public class DailyWeatherInfo {
   private int tempMaxPm;
   private int tempMin;
   private int tempMax;
+  // 평균 강수확률 probability of precipitation
+  private int pop;
 
   public DailyWeatherInfo(LocalDateTime announceDate) {
     this.announceDate = announceDate;
@@ -80,5 +82,13 @@ public class DailyWeatherInfo {
 
   public void setTempMax(int tempMax) {
     this.tempMax = tempMax;
+  }
+
+  public int getPop() {
+    return pop;
+  }
+
+  public void setPop(int pop) {
+    this.pop = pop;
   }
 }

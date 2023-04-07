@@ -3,18 +3,18 @@ package MyWeather;
 import java.time.LocalDateTime;
 
 public class DateManager {
-  // 최근 초단기예보 발표시각 구하기
-  public static LocalDateTime getRecentMicroForecastTime() {
-    return getMicroForecastTime(0);
+  // 직전 초단기예보 발표시각 구하기
+  public static LocalDateTime getLastUltraSrtFcstTime() {
+    return getUltraSrtFcstTime(-1);
   }
 
-  // 직전 초단기예보 발표시각 구하기
-  public static LocalDateTime getLastMicroForecastTime() {
-    return getMicroForecastTime(-1);
+  // 최근 초단기예보 발표시각 구하기
+  public static LocalDateTime getRecentUltraSrtFcstTime() {
+    return getUltraSrtFcstTime(0);
   }
 
   // 초단기예보 발표시각 구하기
-  public static LocalDateTime getMicroForecastTime(int hourIndex) {
+  public static LocalDateTime getUltraSrtFcstTime(int hourIndex) {
     LocalDateTime result = LocalDateTime.now().plusHours(hourIndex);
     int hour = result.getHour();
     int minute = result.getMinute();

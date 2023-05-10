@@ -278,5 +278,7 @@ public class MyWeatherTest {
       e.printStackTrace();
       System.out.println("주간 최고/최저 기온 정보를 불러오지 못했습니다.");
     }
+
+    System.out.println(AddressManager.getAddress(37.95217365428529, 127.31069667727351));
   }
 }

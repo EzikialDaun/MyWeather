@@ -1,12 +1,6 @@
 package com.example.myweather;
 
-import java.time.LocalDateTime;
-
 public class DailyWeatherInfo {
-    // 예보 대상 날짜
-    private LocalDateTime forecastDate;
-    // 예보 발표 날짜
-    private LocalDateTime announceDate;
     private int tempMinAm;
     private int tempMaxAm;
     private int tempMinPm;
@@ -16,24 +10,8 @@ public class DailyWeatherInfo {
     // 평균 강수확률 probability of precipitation
     private int pop;
 
-    public DailyWeatherInfo(LocalDateTime announceDate) {
-        this.announceDate = announceDate;
-    }
+    public DailyWeatherInfo() {
 
-    public LocalDateTime getForecastDate() {
-        return forecastDate;
-    }
-
-    public void setForecastDate(LocalDateTime forecastDate) {
-        this.forecastDate = forecastDate;
-    }
-
-    public LocalDateTime getAnnounceDate() {
-        return announceDate;
-    }
-
-    public void setAnnounceDate(LocalDateTime announceDate) {
-        this.announceDate = announceDate;
     }
 
     public int getTempMinAm() {

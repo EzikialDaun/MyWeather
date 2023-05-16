@@ -1,7 +1,6 @@
 package com.example.myweather;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 enum SkyCode {
     SUNNY, CLOUDY, OVERCAST, ERROR
@@ -12,11 +11,8 @@ enum PrecipitationCode {
 }
 
 public class HourlyWeatherInfo {
-    private final static String KOREAN_DATE_TIME_FORMAT = "yyyy년 MM월 dd일 HH시 mm분";
-    // 예보 대상 날짜
-    private LocalDateTime forecastDate;
-    // 예보 발표 날짜
-    private LocalDateTime announceDate;
+    // 대상 날짜
+    private LocalDateTime targetDate;
     // 기온(℃)
     private double temperature;
     // 습도(%)
@@ -33,22 +29,6 @@ public class HourlyWeatherInfo {
     private String rainScale;
     // 강수확률 probability of precipitation
     private int pop;
-
-    public LocalDateTime getAnnounceDate() {
-        return announceDate;
-    }
-
-    public void setAnnounceDate(LocalDateTime announceDate) {
-        this.announceDate = announceDate;
-    }
-
-    public LocalDateTime getForecastDate() {
-        return forecastDate;
-    }
-
-    public void setForecastDate(LocalDateTime forecastDate) {
-        this.forecastDate = forecastDate;
-    }
 
     public double getTemperature() {
         return temperature;
@@ -214,11 +194,11 @@ public class HourlyWeatherInfo {
         return result;
     }
 
-    public String getForecastDateString() {
-        return forecastDate.format(DateTimeFormatter.ofPattern(KOREAN_DATE_TIME_FORMAT));
+    public LocalDateTime getTargetDate() {
+        return targetDate;
     }
 
-    public String getAnnounceDateString() {
-        return announceDate.format(DateTimeFormatter.ofPattern(KOREAN_DATE_TIME_FORMAT));
+    public void setTargetDate(LocalDateTime targetDate) {
+        this.targetDate = targetDate;
     }
 }

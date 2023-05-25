@@ -6,6 +6,9 @@ public class AppManager extends Application {
     private final int HOURS_IN_DAY = 24;
     private final int DAYS_IN_WEEK = 7;
     private final int SHORT_DAY_LIMIT = 2;
+    private double latitude;
+    private double longitude;
+    private LatXLngY latXLngY;
     private String address;
     private int UV;
     private HourlyWeatherInfo currentWeatherInfo;
@@ -66,5 +69,29 @@ public class AppManager extends Application {
 
     public int getShortDayLimit() {
         return SHORT_DAY_LIMIT;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public LatXLngY getLatXLngY() {
+        return latXLngY;
+    }
+
+    public void setLatXLngY(LatXLngY latXLngY) {
+        this.latXLngY = latXLngY;
     }
 }

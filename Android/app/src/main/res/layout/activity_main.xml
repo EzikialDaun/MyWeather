@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg_spring"
     tools:context=".MainActivity">
 
     <LinearLayout
@@ -14,83 +15,57 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/textview_address"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/dovemayo_gothic"
-            android:gravity="center"
-            android:textAlignment="center" />
-
-        <TextView
-            android:id="@+id/textview_datetime"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/dovemayo_gothic"
-            android:gravity="center"
-            android:textAlignment="center" />
-
-        <TextView
             android:id="@+id/textview_ctemp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
             android:fontFamily="@font/dovemayo_gothic"
             android:gravity="center"
             android:textAlignment="center"
-            android:textSize="32sp" />
+            android:textColor="@color/main_font"
+            android:textSize="24sp" />
 
         <TextView
-            android:id="@+id/textview_today_range"
+            android:id="@+id/textview_range"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/dovemayo_gothic"
             android:gravity="center"
             android:textAlignment="center"
-            android:textSize="14sp" />
+            android:textColor="@color/main_font"
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/textview_comment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="60dp"
             android:fontFamily="@font/dovemayo_gothic"
             android:gravity="center"
             android:textAlignment="center"
-            android:textSize="14sp" />
+            android:textColor="@color/main_font"
+            android:textSize="20sp" />
 
         <ImageView
-            android:id="@+id/imageView"
+            android:id="@+id/imageview_model"
             android:layout_width="match_parent"
-            android:layout_height="350dp"
-            android:contentDescription="메인 이미지" />
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:contentDescription="@string/model_image" />
 
-        <HorizontalScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="20dp"
-            android:scrollbars="none">
-
-            <TableLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <TableRow
-                    android:id="@+id/tablerow_time"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-
-                <TableRow
-                    android:id="@+id/tablerow_status"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-
-                <TableRow
-                    android:id="@+id/tablerow_temp"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-
-            </TableLayout>
-        </HorizontalScrollView>
-
+        <Button
+            android:id="@+id/button_to_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center"
+            android:background="@android:color/transparent"
+            android:enabled="false"
+            android:fontFamily="@font/dovemayo_gothic"
+            android:insetTop="8dp"
+            android:insetBottom="8dp"
+            android:minHeight="16dp"
+            android:textColor="@color/main_font"
+            android:textSize="11sp" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

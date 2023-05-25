@@ -1,49 +1,17 @@
 package com.example.myweather;
 
+import java.time.LocalDateTime;
+
 public class DailyWeatherInfo {
-    private int tempMinAm;
-    private int tempMaxAm;
-    private int tempMinPm;
-    private int tempMaxPm;
+    // 발표 날짜
+    private LocalDateTime baseDate;
+    // 대상 날짜
+    private LocalDateTime targetDate;
     private int tempMin;
     private int tempMax;
-    // 평균 강수확률 probability of precipitation
-    private int pop;
 
     public DailyWeatherInfo() {
 
-    }
-
-    public int getTempMinAm() {
-        return tempMinAm;
-    }
-
-    public void setTempMinAm(int tempMinAm) {
-        this.tempMinAm = tempMinAm;
-    }
-
-    public int getTempMaxAm() {
-        return tempMaxAm;
-    }
-
-    public void setTempMaxAm(int tempMaxAm) {
-        this.tempMaxAm = tempMaxAm;
-    }
-
-    public int getTempMinPm() {
-        return tempMinPm;
-    }
-
-    public void setTempMinPm(int tempMinPm) {
-        this.tempMinPm = tempMinPm;
-    }
-
-    public int getTempMaxPm() {
-        return tempMaxPm;
-    }
-
-    public void setTempMaxPm(int tempMaxPm) {
-        this.tempMaxPm = tempMaxPm;
     }
 
     public int getTempMin() {
@@ -62,11 +30,19 @@ public class DailyWeatherInfo {
         this.tempMax = tempMax;
     }
 
-    public int getPop() {
-        return pop;
+    public LocalDateTime getBaseDate() {
+        return baseDate;
     }
 
-    public void setPop(int pop) {
-        this.pop = pop;
+    public void setBaseDate(LocalDateTime baseDate) {
+        this.baseDate = baseDate;
+    }
+
+    public LocalDateTime getTargetDate() {
+        return targetDate;
+    }
+
+    public void setTargetDate(LocalDateTime targetDate) {
+        this.targetDate = targetDate;
     }
 }

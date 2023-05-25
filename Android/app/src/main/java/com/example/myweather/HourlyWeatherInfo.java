@@ -11,6 +11,8 @@ enum PrecipitationCode {
 }
 
 public class HourlyWeatherInfo {
+    // 발표 날짜
+    private LocalDateTime baseDate;
     // 대상 날짜
     private LocalDateTime targetDate;
     // 기온(℃)
@@ -200,5 +202,13 @@ public class HourlyWeatherInfo {
 
     public void setTargetDate(LocalDateTime targetDate) {
         this.targetDate = targetDate;
+    }
+
+    public LocalDateTime getBaseDate() {
+        return baseDate;
+    }
+
+    public void setBaseDate(LocalDateTime baseDate) {
+        this.baseDate = baseDate;
     }
 }

@@ -26,7 +26,7 @@ public class WeatherManager {
     }
 
     // 단기예보
-    public static JSONArray getVillageFcst(int posX, int posY, LocalDateTime baseDate, String serviceKey, int numOfTime) throws IOException, ParseException {
+    public static JSONArray getshortForecast(int posX, int posY, LocalDateTime baseDate, String serviceKey, int numOfTime) throws IOException, ParseException {
         String apiUrl = "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst";
         return getForecast(posX, posY, baseDate, serviceKey, apiUrl, numOfTime);
     }

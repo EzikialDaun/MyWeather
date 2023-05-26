@@ -109,6 +109,46 @@ public class AddressManager {
         return rs;
     }
 
+    // 주소에서 법정동 코드로
+    public static String addressToAreaId(String address) {
+        if (address.contains("인천")) {
+            return "2800000000";
+        } else if (address.contains("강원")) {
+            return "4200000000";
+        } else if (address.contains("경기")) {
+            return "4100000000";
+        } else if (address.contains("경남")) {
+            return "4800000000";
+        } else if (address.contains("경북")) {
+            return "4700000000";
+        } else if (address.contains("광주")) {
+            return "2900000000";
+        } else if (address.contains("대구")) {
+            return "2700000000";
+        } else if (address.contains("대전")) {
+            return "3000000000";
+        } else if (address.contains("부산")) {
+            return "2600000000";
+        } else if (address.contains("서울")) {
+            return "1100000000";
+        } else if (address.contains("세종")) {
+            return "3611000000";
+        } else if (address.contains("울산")) {
+            return "3100000000";
+        } else if (address.contains("전남")) {
+            return "4600000000";
+        } else if (address.contains("전북")) {
+            return "4500000000";
+        } else if (address.contains("제주")) {
+            return "5000000000";
+        } else if (address.contains("충남")) {
+            return "4400000000";
+        } else if (address.contains("충북")) {
+            return "4300000000";
+        }
+        return "";
+    }
+
     // 주소에서 중기예보 RegId로 변환
     public static String addressToRegId(String address) {
         if (address.contains("백령면")) {

@@ -17,6 +17,18 @@ import java.time.format.DateTimeFormatter;
 public class WeatherManager {
     private static final String CHARSET = "UTF-8";
 
+    public static JSONArray getUVFcst(String areaId, LocalDateTime baseDate, String serviceKey) throws IOException, ParseException {
+        String apiUrl = "https://apis.data.go.kr/1360000/LivingWthrIdxServiceV4/getUVIdxV4";
+
+        String dataType = "json";    //타입 xml, json
+
+        String urlBuilder = apiUrl + "?" + URLEncoder.encode("ServiceKey", CHARSET) + "=" + serviceKey + "&" + URLEncoder.encode("areaNo", CHARSET) + "=" + URLEncoder.encode(areaId, CHARSET) + //경도
+                "&" + URLEncoder.encode("time", CHARSET) + "=" + URLEncoder.encode(baseDate.format(DateTimeFormatter.ofPattern("yyyyMMddHH")), CHARSET) + /* 조회하고싶은 날짜*/
+                "&" + URLEncoder.encode("dataType", CHARSET) + "=" + URLEncoder.encode(dataType, CHARSET) +    /* 타입 */
+                "&" + URLEncoder.encode("numOfRows", CHARSET) + "=" + URLEncoder.encode("10", CHARSET);    /* 한 페이지 결과 수 */
+        return getRequest(urlBuilder);
+    }
+
     // 초단기예보
     public static JSONArray getUltraSrtFcst(int posX, int posY, LocalDateTime baseDate, String serviceKey) throws IOException, ParseException {
         String apiUrl = "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst";
@@ -43,8 +55,7 @@ public class WeatherManager {
         String ny = Integer.toString(posY);    //경도
         String dataType = "json";    //타입 xml, json
         String numberOfRows = Integer.toString(numOfRows);
-        String urlBuilder = apiUrl + "?" + URLEncoder.encode("ServiceKey", CHARSET) + "=" + serviceKey +
-                "&" + URLEncoder.encode("nx", CHARSET) + "=" + URLEncoder.encode(nx, CHARSET) + //경도
+        String urlBuilder = apiUrl + "?" + URLEncoder.encode("ServiceKey", CHARSET) + "=" + serviceKey + "&" + URLEncoder.encode("nx", CHARSET) + "=" + URLEncoder.encode(nx, CHARSET) + //경도
                 "&" + URLEncoder.encode("ny", CHARSET) + "=" + URLEncoder.encode(ny, CHARSET) + //위도
                 "&" + URLEncoder.encode("base_date", CHARSET) + "=" + URLEncoder.encode(baseDate.format(DateTimeFormatter.ofPattern("yyyyMMdd")), CHARSET) + /* 조회하고싶은 날짜*/
                 "&" + URLEncoder.encode("base_time", CHARSET) + "=" + URLEncoder.encode(baseDate.format(DateTimeFormatter.ofPattern("HHmm")), CHARSET) + /* 조회하고싶은 시간 AM 02시부터 3시간 단위 */
@@ -56,8 +67,7 @@ public class WeatherManager {
     public static JSONArray getMidFsct(String regId, LocalDateTime baseDate, String serviceKey, String apiUrl) throws IOException, ParseException {
         String urlBuilder = apiUrl + "?" + URLEncoder.encode("ServiceKey", CHARSET) + "=" + serviceKey +
                 // 지역 ID
-                "&" + URLEncoder.encode("regId", CHARSET) + "=" + URLEncoder.encode(regId, CHARSET) +
-                "&" + URLEncoder.encode("tmFc", CHARSET) + "=" + URLEncoder.encode(baseDate.format(DateTimeFormatter.ofPattern("yyyyMMddHHmm")), CHARSET) + /* 조회하고싶은 날짜*/
+                "&" + URLEncoder.encode("regId", CHARSET) + "=" + URLEncoder.encode(regId, CHARSET) + "&" + URLEncoder.encode("tmFc", CHARSET) + "=" + URLEncoder.encode(baseDate.format(DateTimeFormatter.ofPattern("yyyyMMddHHmm")), CHARSET) + /* 조회하고싶은 날짜*/
                 "&" + URLEncoder.encode("dataType", CHARSET) + "=" + URLEncoder.encode("json", CHARSET) +    /* 타입 */
                 "&" + URLEncoder.encode("numOfRows", CHARSET) + "=" + URLEncoder.encode("1", CHARSET);    /* 한 페이지 결과 수 */
         return getRequest(urlBuilder);

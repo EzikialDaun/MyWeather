@@ -76,6 +76,9 @@ public class IntroActivity extends AppCompatActivity {
                         ((AppManager) getApplication()).setWeeklyTempInfo(afterThreeDaysWeatherInfo[2], 5);
                         ((AppManager) getApplication()).setWeeklyTempInfo(afterThreeDaysWeatherInfo[3], 6);
 
+                        int UV = getUVInfo(AddressManager.addressToAreaId(address), getResources().getString(R.string.service_key));
+                        ((AppManager) getApplication()).setUV(UV);
+
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                         startActivity(intent); //인트로 실행 후 바로 MainActivity로 넘어감.
                         finish();
@@ -92,6 +95,13 @@ public class IntroActivity extends AppCompatActivity {
         public void onProviderDisabled(String provider) {
         }
     };
+
+    private int getUVInfo(String areaId, String serviceKey) throws IOException, ParseException {
+        LocalDateTime baseDate = DateManager.getLastUVForecastTime();
+        JSONArray result = WeatherManager.getUVFcst(areaId, baseDate, serviceKey);
+        JSONObject jsonObject = (JSONObject) result.get(0);
+        return Integer.parseInt((String) jsonObject.get("h18"));
+    }
 
     private HourlyWeatherInfo[] get24HourWeatherInfo(int nx, int ny, String serviceKey) throws IOException, ParseException {
         HourlyWeatherInfo[] HourlyInfo = new HourlyWeatherInfo[((AppManager) getApplication()).getHoursInDay()];

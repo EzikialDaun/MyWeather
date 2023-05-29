@@ -100,8 +100,10 @@ public class AppManager extends Application {
     public int getUVTargetIndex() {
         int result;
         int hour = LocalDateTime.now().getHour();
-        if (hour >= 18 || hour < 6) {
+        if (hour >= 18) {
             result = (hour - 18) / 3;
+        } else if (hour < 6) {
+            result = (hour + 6) / 3;
         } else {
             result = (hour - 6) / 3;
         }

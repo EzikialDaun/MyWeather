@@ -25,6 +25,7 @@ public class InfoActivity extends AppCompatActivity {
     private TableRow rowTime;
     private TableRow rowStatus;
     private TableRow rowTemp;
+    private TableRow rowPop;
     private TableLayout layoutWeekly;
 
     @Override
@@ -40,6 +41,7 @@ public class InfoActivity extends AppCompatActivity {
         rowTime = findViewById(R.id.row_time);
         rowStatus = findViewById(R.id.row_status);
         rowTemp = findViewById(R.id.row_temp);
+        rowPop = findViewById(R.id.row_pop);
         layoutWeekly = findViewById(R.id.layout_weekly);
 
         // 타이틀 바 제거
@@ -50,11 +52,17 @@ public class InfoActivity extends AppCompatActivity {
 
         HourlyWeatherInfo currentWeatherInfo = ((AppManager) getApplication()).getCurrentWeatherInfo();
         String humidity = currentWeatherInfo.getHumidity() + "%";
-        String windSpeed = currentWeatherInfo.getWindSpeed() + "m/s";
+        double windSpeed = currentWeatherInfo.getWindSpeed();
+        String windSpeedString = currentWeatherInfo.getWindSpeed() + "m/s";
         txtHumidity.setText(humidity);
-        txtWindSpeed.setText(windSpeed);
+        txtWindSpeed.setText(windSpeedString);
 
-        int UV = ((AppManager) getApplication()).getUV();
+        double currentTemp = currentWeatherInfo.getTemperature();
+        double windSpeedScale = (windSpeed * 3600) / 1000;
+        double sensoryTemp = 13.12 + (0.6215 * currentTemp) - (11.37 * Math.pow(windSpeedScale, 0.16)) + (0.3965 * Math.pow(windSpeedScale, 0.16) * currentTemp);
+        System.out.println(sensoryTemp);
+
+        int UV = ((AppManager) getApplication()).getUV()[((AppManager) getApplication()).getUVTargetIndex()];
         String UVResult;
         if (UV < 3) {
             UVResult = "낮음 (" + UV + ")";
@@ -73,36 +81,50 @@ public class InfoActivity extends AppCompatActivity {
 
         HourlyWeatherInfo[] hourlyWeatherInfos = ((AppManager) getApplication()).getHour24WeatherInfos();
         DailyWeatherInfo[] weeklyTempInfos = ((AppManager) getApplication()).getWeeklyTempInfos();
-        String pattern = getResources().getString(R.string.format_korean_12h);
         String am = getResources().getString(R.string.am);
         String amKor = getResources().getString(R.string.am_kor);
         String pm = getResources().getString(R.string.pm);
         String pmKor = getResources().getString(R.string.pm_kor);
 
         txtInfoAddress.setText(((AppManager) getApplication()).getAddress());
-        txtDatetime.setText(LocalDateTime.now().format(DateTimeFormatter.ofPattern(pattern)).replace(am, amKor).replace(pm, pmKor));
+        txtDatetime.setText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 a hh시")).replace(am, amKor).replace(pm, pmKor));
 
         for (int i = 0; i < ((AppManager) getApplication()).getHoursInDay(); i++) {
             Typeface typeface = getResources().getFont(R.font.dovemayo_gothic);
 
             TextView viewTime = new TextView(this);
-            viewTime.setText(hourlyWeatherInfos[i].getTargetDate().format(DateTimeFormatter.ofPattern(pattern)).replace(am, amKor).replace(pm, pmKor));
+            viewTime.setText(hourlyWeatherInfos[i].getTargetDate().format(DateTimeFormatter.ofPattern(getResources().getString(R.string.format_korean_12h))).replace(am, amKor).replace(pm, pmKor));
             viewTime.setGravity(Gravity.CENTER);
-            viewTime.setPadding(20, 0, 20, 0);
+            viewTime.setPadding(20, 8, 20, 8);
             viewTime.setTypeface(typeface);
             rowTime.addView(viewTime);
 
             TextView viewStatus = new TextView(this);
-            viewStatus.setText(hourlyWeatherInfos[i].getSkyString());
+            String sky;
+            if (hourlyWeatherInfos[i].getPrecipitationString().equals("강수없음")) {
+                sky = hourlyWeatherInfos[i].getSkyString();
+            } else {
+                sky = hourlyWeatherInfos[i].getPrecipitationString();
+            }
+            viewStatus.setText(sky);
             viewStatus.setGravity(Gravity.CENTER);
+            viewStatus.setPadding(20, 8, 20, 8);
             viewStatus.setTypeface(typeface);
             rowStatus.addView(viewStatus);
 
             TextView viewTemp = new TextView(this);
             viewTemp.setText((int) (hourlyWeatherInfos[i].getTemperature()) + "°");
             viewTemp.setGravity(Gravity.CENTER);
+            viewTemp.setPadding(20, 8, 20, 8);
             viewTemp.setTypeface(typeface);
             rowTemp.addView(viewTemp);
+
+            TextView viewPop = new TextView(this);
+            viewPop.setText(hourlyWeatherInfos[i].getPop() + "%");
+            viewPop.setGravity(Gravity.CENTER);
+            viewPop.setPadding(20, 8, 20, 8);
+            viewPop.setTypeface(typeface);
+            rowPop.addView(viewPop);
         }
 
         for (int i = 0; i < ((AppManager) getApplication()).getDaysInWeek(); i++) {

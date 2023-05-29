@@ -10,8 +10,10 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -27,7 +29,54 @@ import java.util.Objects;
 
 
 public class IntroActivity extends AppCompatActivity {
+    private ProgressBar progressBar;
     private LocationManager locationManager = null;
+    private ArrayList<String> flagKeyArray;
+    private int completeCount = 0;
+    private MainHandler mainHandler;
+
+    private class MainHandler extends Handler {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+
+            Bundle bundle = msg.getData();
+            if (bundle.getBoolean(getString(R.string.key_address))) {
+                completeCount++;
+            }
+            if (bundle.getBoolean(getString(R.string.key_0h_fcst))) {
+                completeCount++;
+            }
+            if (bundle.getBoolean(getString(R.string.key_24h_fcst))) {
+                completeCount++;
+            }
+            if (bundle.getBoolean(getString(R.string.key_range_fcst))) {
+                completeCount++;
+            }
+            if (bundle.getBoolean(getString(R.string.key_3d_fcst))) {
+                completeCount++;
+            }
+            boolean isTimeout = bundle.getBoolean(getString(R.string.key_timeout));
+            progressBar.setProgress(completeCount);
+            if (completeCount == flagKeyArray.size()) {
+                if (!isTimeout) {
+                    notifyToast("로딩 완료!");
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+            } else {
+                if (isTimeout) {
+                    notifyToast("로딩 실패 :: timeout");
+                    finish();
+                }
+            }
+        }
+    }
+
+    private void notifyToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
 
     // GPS 핸들링
     private final LocationListener gpsLocationListener = new LocationListener() {
@@ -52,23 +101,6 @@ public class IntroActivity extends AppCompatActivity {
                         String address = AddressManager.getAddress(((AppManager) getApplication()).getLatitude(), ((AppManager) getApplication()).getLongitude());
                         ((AppManager) getApplication()).setAddress(address);
 
-                        // 현재 날씨(초단기 예보)
-                        HourlyWeatherInfo currentWeatherInfo = getCurrentWeatherInfo(grid.x, grid.y, getResources().getString(R.string.service_key));
-                        ((AppManager) getApplication()).setCurrentWeatherInfo(currentWeatherInfo);
-
-                        // 최근 24시간 날씨(최근 단기예보)
-                        HourlyWeatherInfo[] recent24HourWeatherInfo = get24HourWeatherInfo(grid.x, grid.y, getResources().getString(R.string.service_key));
-                        ((AppManager) getApplication()).setHour24WeatherInfos(recent24HourWeatherInfo);
-
-                        // 오늘 최고 최저 기온(전 날 마지막 단기예보)
-                        DailyWeatherInfo todayWeatherInfo = getTodayTempRange(grid.x, grid.y, getResources().getString(R.string.service_key));
-                        ((AppManager) getApplication()).setWeeklyTempInfo(todayWeatherInfo, 0);
-
-                        // 2 ~ 3일 최고 최저 기온(최근 단기예보)
-                        DailyWeatherInfo[] twoDaysWeatherInfo = getAfterTodayWeatherInfo(grid.x, grid.y, getResources().getString(R.string.service_key));
-                        ((AppManager) getApplication()).setWeeklyTempInfo(twoDaysWeatherInfo[0], 1);
-                        ((AppManager) getApplication()).setWeeklyTempInfo(twoDaysWeatherInfo[1], 2);
-
                         // 4 ~ 7일 최고 최저 기온(최근 중기예보)
                         DailyWeatherInfo[] afterThreeDaysWeatherInfo = getAfterThreeDaysWeatherInfo(AddressManager.addressToRegId(address), getResources().getString(R.string.service_key));
                         ((AppManager) getApplication()).setWeeklyTempInfo(afterThreeDaysWeatherInfo[0], 3);
@@ -76,17 +108,70 @@ public class IntroActivity extends AppCompatActivity {
                         ((AppManager) getApplication()).setWeeklyTempInfo(afterThreeDaysWeatherInfo[2], 5);
                         ((AppManager) getApplication()).setWeeklyTempInfo(afterThreeDaysWeatherInfo[3], 6);
 
-                        int UV = getUVInfo(AddressManager.addressToAreaId(address), getResources().getString(R.string.service_key));
+                        // 자외선 지수
+                        int[] UV = getUVInfo(AddressManager.addressToAreaId(address), getResources().getString(R.string.service_key));
                         ((AppManager) getApplication()).setUV(UV);
 
-                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                        startActivity(intent); //인트로 실행 후 바로 MainActivity로 넘어감.
-                        finish();
+                        setFlagMessage(getString(R.string.key_address));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }).start();
+                new Thread(() -> {
+                    try {
+                        // 현재 날씨(초단기 예보)
+                        HourlyWeatherInfo currentWeatherInfo = getCurrentWeatherInfo(grid.x, grid.y, getResources().getString(R.string.service_key));
+                        ((AppManager) getApplication()).setCurrentWeatherInfo(currentWeatherInfo);
+
+                        setFlagMessage(getString(R.string.key_0h_fcst));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }).start();
+                new Thread(() -> {
+                    try {
+                        // 최근 24시간 날씨(최근 단기예보)
+                        HourlyWeatherInfo[] recent24HourWeatherInfo = get24HourWeatherInfo(grid.x, grid.y, getResources().getString(R.string.service_key));
+                        ((AppManager) getApplication()).setHour24WeatherInfos(recent24HourWeatherInfo);
+
+                        setFlagMessage(getString(R.string.key_24h_fcst));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }).start();
+                new Thread(() -> {
+                    try {
+                        // 오늘 최고 최저 기온(전 날 마지막 단기예보)
+                        DailyWeatherInfo todayWeatherInfo = getTodayTempRange(grid.x, grid.y, getResources().getString(R.string.service_key));
+                        ((AppManager) getApplication()).setWeeklyTempInfo(todayWeatherInfo, 0);
+
+                        setFlagMessage(getString(R.string.key_range_fcst));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }).start();
+                new Thread(() -> {
+                    try {
+                        // 2 ~ 3일 최고 최저 기온(최근 단기예보)
+                        DailyWeatherInfo[] twoDaysWeatherInfo = getAfterTodayWeatherInfo(grid.x, grid.y, getResources().getString(R.string.service_key));
+                        ((AppManager) getApplication()).setWeeklyTempInfo(twoDaysWeatherInfo[0], 1);
+                        ((AppManager) getApplication()).setWeeklyTempInfo(twoDaysWeatherInfo[1], 2);
+
+                        setFlagMessage(getString(R.string.key_3d_fcst));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }).start();
+                new Handler().postDelayed(() -> setFlagMessage(getString(R.string.key_timeout)), 1000 * 30);
             }
+        }
+
+        private void setFlagMessage(String key) {
+            Message message = mainHandler.obtainMessage();
+            Bundle bundle = new Bundle();
+            bundle.putBoolean(key, true);
+            message.setData(bundle);
+            mainHandler.sendMessage(message);
         }
 
         public void onProviderEnabled(String provider) {
@@ -96,11 +181,20 @@ public class IntroActivity extends AppCompatActivity {
         }
     };
 
-    private int getUVInfo(String areaId, String serviceKey) throws IOException, ParseException {
-        LocalDateTime baseDate = DateManager.getLastUVForecastTime();
-        JSONArray result = WeatherManager.getUVFcst(areaId, baseDate, serviceKey);
-        JSONObject jsonObject = (JSONObject) result.get(0);
-        return Integer.parseInt((String) jsonObject.get("h18"));
+    private int[] getUVInfo(String areaId, String serviceKey) throws IOException, ParseException {
+        // 3시간 간격 발표
+        final int FCST_INTERVAL = 3;
+        // 3시간 * 4 = 12시간
+        final int MAX_FCST_CNT = 4;
+        int[] result = new int[MAX_FCST_CNT];
+        LocalDateTime baseDate = DateManager.getRecentMidForecastTime();
+        JSONArray fcstResult = WeatherManager.getUVFcst(areaId, baseDate, serviceKey);
+        // 기상청에서 배열로 제공하지만 원소가 하나밖에 없음. 따라서 첫 원소만 인덱싱.
+        JSONObject jsonObject = (JSONObject) fcstResult.get(0);
+        for (int i = 0; i < MAX_FCST_CNT; i++) {
+            result[i] = Integer.parseInt((String) jsonObject.get("h" + i * FCST_INTERVAL));
+        }
+        return result;
     }
 
     private HourlyWeatherInfo[] get24HourWeatherInfo(int nx, int ny, String serviceKey) throws IOException, ParseException {
@@ -109,6 +203,8 @@ public class IntroActivity extends AppCompatActivity {
         JSONArray srtFcstResult = WeatherManager.getshortForecast(nx, ny, baseDate, serviceKey, 0);
         ArrayList<String> tempArray = new ArrayList<>();
         ArrayList<String> skyArray = new ArrayList<>();
+        ArrayList<Integer> popArray = new ArrayList<>();
+        ArrayList<String> ptyArray = new ArrayList<>();
         try {
             for (int i = 0; i < srtFcstResult.size(); i++) {
                 JSONObject jsonObject = (JSONObject) srtFcstResult.get(i);
@@ -118,6 +214,12 @@ public class IntroActivity extends AppCompatActivity {
                 } else if (Objects.equals(jsonObject.get(getResources().getString(R.string.category)), getResources().getString(R.string.sky))) {
                     String sky = (String) jsonObject.get(getResources().getString(R.string.forecast_value));
                     skyArray.add(sky);
+                } else if (Objects.equals(jsonObject.get(getResources().getString(R.string.category)), getResources().getString(R.string.pop))) {
+                    int pop = Integer.parseInt((String) jsonObject.get(getResources().getString(R.string.forecast_value)));
+                    popArray.add(pop);
+                } else if (Objects.equals(jsonObject.get(getResources().getString(R.string.category)), getResources().getString(R.string.pty))) {
+                    String pty = (String) jsonObject.get(getResources().getString(R.string.forecast_value));
+                    ptyArray.add(pty);
                 }
             }
             for (int i = 0; i < ((AppManager) getApplication()).getHoursInDay(); i++) {
@@ -127,6 +229,8 @@ public class IntroActivity extends AppCompatActivity {
                 HourlyInfo[i].setTargetDate(baseDate.plusHours(i));
                 HourlyInfo[i].setTemperature(Double.parseDouble(temp));
                 HourlyInfo[i].setSky(skyArray.get(i));
+                HourlyInfo[i].setPrecipitation(ptyArray.get(i));
+                HourlyInfo[i].setPop(popArray.get(i));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -182,14 +286,13 @@ public class IntroActivity extends AppCompatActivity {
             String PROPERTY_FORECAST_TIME = "fcstTime";
             if (Objects.equals(dataLine.get(PROPERTY_FORECAST_TIME), currentHour)) {
                 String PROPERTY_TEMPERATURE_ONE_HOUR = "T1H";
-                String PROPERTY_PRECIPITATION = "PTY";
                 String PROPERTY_WIND_DIRECTION = "VEC";
                 String PROPERTY_HUMIDITY = "REH";
                 String PROPERTY_WIND_SPEED = "WSD";
                 String PROPERTY_RAIN_ONE_HOUR = "RN1";
                 if (Objects.equals(dataLine.get(getResources().getString(R.string.category)), PROPERTY_TEMPERATURE_ONE_HOUR)) {
                     result.setTemperature(Double.parseDouble(dataLine.get(getResources().getString(R.string.forecast_value)).toString()));
-                } else if (Objects.equals(dataLine.get(getResources().getString(R.string.category)), PROPERTY_PRECIPITATION)) {
+                } else if (Objects.equals(dataLine.get(getResources().getString(R.string.category)), getResources().getString(R.string.pty))) {
                     result.setPrecipitation(dataLine.get(getResources().getString(R.string.forecast_value)).toString());
                 } else if (Objects.equals(dataLine.get(getResources().getString(R.string.category)), getResources().getString(R.string.sky))) {
                     result.setSky(dataLine.get(getResources().getString(R.string.forecast_value)).toString());
@@ -231,7 +334,6 @@ public class IntroActivity extends AppCompatActivity {
     }
 
     private DailyWeatherInfo[] getAfterThreeDaysWeatherInfo(String regId, String serviceKey) throws IOException, ParseException {
-        // 1일 2일 4일
         final int MAX_INDEX = ((AppManager) getApplication()).getDaysInWeek() - ((AppManager) getApplication()).getShortDayLimit() - 1;
         DailyWeatherInfo[] result = new DailyWeatherInfo[MAX_INDEX];
         LocalDateTime baseDate = DateManager.getRecentMidForecastTime();
@@ -257,7 +359,20 @@ public class IntroActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_intro);
 
+        flagKeyArray = new ArrayList<>();
+        flagKeyArray.add(getString(R.string.key_address));
+        flagKeyArray.add(getString(R.string.key_0h_fcst));
+        flagKeyArray.add(getString(R.string.key_range_fcst));
+        flagKeyArray.add(getString(R.string.key_24h_fcst));
+        flagKeyArray.add(getString(R.string.key_3d_fcst));
+
+        progressBar = findViewById(R.id.prg_intro);
+        progressBar.setMax(flagKeyArray.size());
+        progressBar.setProgress(0);
+
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        mainHandler = new MainHandler();
 
         // 10초 주기로 요청
         final int REQ_PERIOD = 1000 * 10;

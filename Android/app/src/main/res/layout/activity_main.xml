@@ -39,9 +39,13 @@
             android:id="@+id/textview_comment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
             android:layout_marginTop="60dp"
+            android:layout_marginRight="20dp"
+            android:background="@drawable/myshape"
             android:fontFamily="@font/dovemayo_gothic"
             android:gravity="center"
+            android:padding="16dp"
             android:textAlignment="center"
             android:textColor="@color/main_font"
             android:textSize="20sp" />

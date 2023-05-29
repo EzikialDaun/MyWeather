@@ -47,7 +47,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void renderUI() {
         try {
-            int currentTemp = (int) ((AppManager) getApplication()).getCurrentWeatherInfo().getTemperature();
+            HourlyWeatherInfo currentWeatherInfo = ((AppManager) getApplication()).getCurrentWeatherInfo();
+            int currentTemp = (int) currentWeatherInfo.getTemperature();
             txtCurrentTemp.setText(currentTemp + "°C");
 
             DailyWeatherInfo todayWeatherInfo = ((AppManager) getApplication()).getWeeklyTempInfo(0);
@@ -59,9 +60,24 @@ public class MainActivity extends AppCompatActivity {
             final int LARGE_DIFF_REF = 10;
             boolean isLargeDiff = maxTempToday - minTempToday >= LARGE_DIFF_REF;
 
-            boolean isRainy = false;
+            boolean isRainy;
+            String ptyString = currentWeatherInfo.getPrecipitationString();
+            if (ptyString.equals("비") || ptyString.equals("빗방울")) {
+                isRainy = true;
+            } else {
+                isRainy = false;
+            }
+
             boolean isHighFineDust = false;
-            boolean isHighUV = false;
+
+            boolean isHighUV;
+            int UV = ((AppManager) getApplication()).getUV()[((AppManager) getApplication()).getUVTargetIndex()];
+            final int HIGH_UV_THRESHOLD = 7;
+            if (UV >= HIGH_UV_THRESHOLD) {
+                isHighUV = true;
+            } else {
+                isHighUV = false;
+            }
 
             // 위 조건에 따라 코디 및 멘트 추천
             if (currentTemp >= 33) {
@@ -217,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
                         txtComment.setText("오늘 우산 필수 비 맞기 금지!\n" + "#미세먼지 #비 #우산");
                     } else {
                         imgModel.setImageResource(R.drawable.img_4);
-                        txtComment.setText("따뜻해 나들이가기 딱 좋은 날씨 :) \n" + "#피크닉");
+                        txtComment.setText("따뜻해! 나들이가기 딱 좋은 날씨 :) \n" + "#피크닉");
                     }
                 }
             } else if (currentTemp >= 17) {

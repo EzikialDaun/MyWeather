@@ -71,8 +71,4 @@ public class DateManager {
         }
         return result;
     }
-
-    public static LocalDateTime getLastUVForecastTime() {
-        return LocalDateTime.now().minusDays(1).withHour(18);
-    }
 }

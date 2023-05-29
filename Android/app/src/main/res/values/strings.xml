@@ -7,6 +7,8 @@
     <string name="forecast_value">fcstValue</string>
     <string name="category">category</string>
     <string name="sky">SKY</string>
+    <string name="pop">POP</string>
+    <string name="pty">PTY</string>
     <string name="temp_max">TMX</string>
     <string name="temp_min">TMN</string>
     <string name="address">ADDRESS</string>
@@ -30,4 +32,10 @@
     <string name="pm">PM</string>
     <string name="am_kor">오전</string>
     <string name="pm_kor">오후</string>
+    <string name="key_address">key_address</string>
+    <string name="key_0h_fcst">key_0h_fcst</string>
+    <string name="key_24h_fcst">key_24h_fcst</string>
+    <string name="key_range_fcst">key_range_fcst</string>
+    <string name="key_3d_fcst">key_3d_fcst</string>
+    <string name="key_timeout">key_timeout</string>
 </resources>

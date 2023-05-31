@@ -17,15 +17,21 @@ import java.time.format.DateTimeFormatter;
 public class WeatherManager {
     private static final String CHARSET = "UTF-8";
 
+    public static JSONArray getFinedustInfo(String station, String serviceKey) throws IOException, ParseException {
+        String apiUrl = "https://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty";
+        String urlBuilder = apiUrl + "?" + URLEncoder.encode("ServiceKey", CHARSET) + "=" + serviceKey + "&" + URLEncoder.encode("stationName", CHARSET) + "=" + URLEncoder.encode(station, CHARSET) + "&" + URLEncoder.encode("Rows", CHARSET) + "=" + URLEncoder.encode("1000", CHARSET) + "&" + URLEncoder.encode("returnType", CHARSET) + "=" + URLEncoder.encode("json", CHARSET) + "&" + URLEncoder.encode("ver", CHARSET) + "=" + URLEncoder.encode("1.0", CHARSET) + "&" + URLEncoder.encode("dataTerm", CHARSET) + "=" + URLEncoder.encode("DAILY", CHARSET);
+        return (getRequestAirKorea(urlBuilder));
+    }
+
+    public static JSONArray getStationArray(double tmX, double tmY, String serviceKey) throws IOException, ParseException {
+        String apiUrl = "https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getNearbyMsrstnList";
+        String urlBuilder = apiUrl + "?" + URLEncoder.encode("ServiceKey", CHARSET) + "=" + serviceKey + "&" + URLEncoder.encode("tmX", CHARSET) + "=" + URLEncoder.encode(String.valueOf(tmX), CHARSET) + "&" + URLEncoder.encode("tmY", CHARSET) + "=" + URLEncoder.encode(String.valueOf(tmY), CHARSET) + "&" + URLEncoder.encode("returnType", CHARSET) + "=" + URLEncoder.encode("json", CHARSET);
+        return (getRequestAirKorea(urlBuilder));
+    }
+
     public static JSONArray getUVFcst(String areaId, LocalDateTime baseDate, String serviceKey) throws IOException, ParseException {
         String apiUrl = "https://apis.data.go.kr/1360000/LivingWthrIdxServiceV4/getUVIdxV4";
-
-        String dataType = "json";    //타입 xml, json
-
-        String urlBuilder = apiUrl + "?" + URLEncoder.encode("ServiceKey", CHARSET) + "=" + serviceKey + "&" + URLEncoder.encode("areaNo", CHARSET) + "=" + URLEncoder.encode(areaId, CHARSET) + //경도
-                "&" + URLEncoder.encode("time", CHARSET) + "=" + URLEncoder.encode(baseDate.format(DateTimeFormatter.ofPattern("yyyyMMddHH")), CHARSET) + /* 조회하고싶은 날짜*/
-                "&" + URLEncoder.encode("dataType", CHARSET) + "=" + URLEncoder.encode(dataType, CHARSET) +    /* 타입 */
-                "&" + URLEncoder.encode("numOfRows", CHARSET) + "=" + URLEncoder.encode("10", CHARSET);    /* 한 페이지 결과 수 */
+        String urlBuilder = apiUrl + "?" + URLEncoder.encode("ServiceKey", CHARSET) + "=" + serviceKey + "&" + URLEncoder.encode("areaNo", CHARSET) + "=" + URLEncoder.encode(areaId, CHARSET) + "&" + URLEncoder.encode("time", CHARSET) + "=" + URLEncoder.encode(baseDate.format(DateTimeFormatter.ofPattern("yyyyMMddHH")), CHARSET) + "&" + URLEncoder.encode("dataType", CHARSET) + "=" + URLEncoder.encode("json", CHARSET) + "&" + URLEncoder.encode("numOfRows", CHARSET) + "=" + URLEncoder.encode("10", CHARSET);
         return getRequest(urlBuilder);
     }
 
@@ -106,5 +112,38 @@ public class WeatherManager {
         JSONObject parse_items = (JSONObject) parse_body.get("items");
 
         return (JSONArray) parse_items.get("item");
+    }
+
+    public static JSONArray getRequestAirKorea(String target) throws IOException, ParseException {
+        // GET 방식으로 전송해서 파라미터 받아오기
+        URL url = new URL(target);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.setRequestProperty("Content-type", "application/json");
+
+        BufferedReader rd;
+        if (conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300) {
+            rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        } else {
+            rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+        }
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = rd.readLine()) != null) {
+            sb.append(line);
+        }
+        rd.close();
+        conn.disconnect();
+        String data = sb.toString();
+
+        // Json parser를 만들어 만들어진 문자열 데이터를 객체화
+        JSONParser parser = new JSONParser();
+        JSONObject obj = (JSONObject) parser.parse(data);
+        // response 키를 가지고 데이터를 파싱
+        JSONObject parse_response = (JSONObject) obj.get("response");
+        // response 로 부터 body 찾기
+        JSONObject parse_body = (JSONObject) parse_response.get("body");
+
+        return (JSONArray) parse_body.get("items");
     }
 }

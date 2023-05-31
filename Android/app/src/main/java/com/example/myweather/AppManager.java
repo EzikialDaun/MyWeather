@@ -12,6 +12,9 @@ public class AppManager extends Application {
     private double longitude;
     private LatXLngY latXLngY;
     private String address;
+    private String pm10;
+    private String pm25;
+    private String finedustStation;
     private int[] UV;
     private HourlyWeatherInfo currentWeatherInfo;
     private HourlyWeatherInfo[] hour24WeatherInfos = new HourlyWeatherInfo[HOURS_IN_DAY];
@@ -108,5 +111,29 @@ public class AppManager extends Application {
             result = (hour - 6) / 3;
         }
         return result;
+    }
+
+    public String getPm10() {
+        return pm10;
+    }
+
+    public void setPm10(String pm10) {
+        this.pm10 = pm10;
+    }
+
+    public String getPm25() {
+        return pm25;
+    }
+
+    public void setPm25(String pm25) {
+        this.pm25 = pm25;
+    }
+
+    public String getFinedustStation() {
+        return finedustStation;
+    }
+
+    public void setFinedustStation(String finedustStation) {
+        this.finedustStation = finedustStation;
     }
 }

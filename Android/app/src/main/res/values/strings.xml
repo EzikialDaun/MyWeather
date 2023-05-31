@@ -33,6 +33,7 @@
     <string name="am_kor">오전</string>
     <string name="pm_kor">오후</string>
     <string name="key_address">key_address</string>
+    <string name="key_finedust">key_finedust</string>
     <string name="key_0h_fcst">key_0h_fcst</string>
     <string name="key_24h_fcst">key_24h_fcst</string>
     <string name="key_range_fcst">key_range_fcst</string>

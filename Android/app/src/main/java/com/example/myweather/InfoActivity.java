@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -22,6 +24,10 @@ public class InfoActivity extends AppCompatActivity {
     private TextView txtUV;
     private TextView txtHumidity;
     private TextView txtWindSpeed;
+    private TextView txtPm10;
+    private TextView txtPm25;
+    private TextView txtSensoryTemp;
+    private TextView txtStation;
     private TableRow rowTime;
     private TableRow rowStatus;
     private TableRow rowTemp;
@@ -38,6 +44,10 @@ public class InfoActivity extends AppCompatActivity {
         txtUV = findViewById(R.id.textview_uv);
         txtHumidity = findViewById(R.id.textview_humidity);
         txtWindSpeed = findViewById(R.id.textview_windspeed);
+        txtPm10 = findViewById(R.id.textview_pm10);
+        txtPm25 = findViewById(R.id.textview_pm25);
+        txtStation = findViewById(R.id.textview_station);
+        txtSensoryTemp = findViewById(R.id.textview_sensory_temp);
         rowTime = findViewById(R.id.row_time);
         rowStatus = findViewById(R.id.row_status);
         rowTemp = findViewById(R.id.row_temp);
@@ -60,7 +70,39 @@ public class InfoActivity extends AppCompatActivity {
         double currentTemp = currentWeatherInfo.getTemperature();
         double windSpeedScale = (windSpeed * 3600) / 1000;
         double sensoryTemp = 13.12 + (0.6215 * currentTemp) - (11.37 * Math.pow(windSpeedScale, 0.16)) + (0.3965 * Math.pow(windSpeedScale, 0.16) * currentTemp);
-        System.out.println(sensoryTemp);
+        txtSensoryTemp.setText((int) sensoryTemp + "°");
+
+        String pm10 = ((AppManager) getApplication()).getPm10();
+        String pm25 = ((AppManager) getApplication()).getPm25();
+        if (pm10.equals("-")) {
+            txtPm10.setText("정보 없음(-)");
+        } else {
+            int pm10Value = Integer.parseInt(pm10);
+            if (pm10Value <= 30) {
+                txtPm10.setText("좋음(" + pm10Value + ")");
+            } else if (pm10Value <= 80) {
+                txtPm10.setText("보통(" + pm10Value + ")");
+            } else if (pm10Value <= 150) {
+                txtPm10.setText("나쁨(" + pm10Value + ")");
+            } else {
+                txtPm10.setText("매우 나쁨(" + pm10Value + ")");
+            }
+        }
+        if (pm25.equals("-")) {
+            txtPm25.setText("정보 없음(-)");
+        } else {
+            int pm25Value = Integer.parseInt(pm25);
+            if (pm25Value <= 30) {
+                txtPm25.setText("좋음(" + pm25Value + ")");
+            } else if (pm25Value <= 80) {
+                txtPm25.setText("보통(" + pm25Value + ")");
+            } else if (pm25Value <= 150) {
+                txtPm25.setText("나쁨(" + pm25Value + ")");
+            } else {
+                txtPm25.setText("매우 나쁨(" + pm25Value + ")");
+            }
+        }
+        txtStation.setText(((AppManager) getApplication()).getFinedustStation());
 
         int UV = ((AppManager) getApplication()).getUV()[((AppManager) getApplication()).getUVTargetIndex()];
         String UVResult;

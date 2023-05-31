@@ -10,6 +10,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -35,6 +36,7 @@ public class IntroActivity extends AppCompatActivity {
     private int completeCount = 0;
     private MainHandler mainHandler;
 
+    // 스레드 동기화를 위한 핸들러
     private class MainHandler extends Handler {
         @Override
         public void handleMessage(@NonNull Message msg) {
@@ -42,6 +44,9 @@ public class IntroActivity extends AppCompatActivity {
 
             Bundle bundle = msg.getData();
             if (bundle.getBoolean(getString(R.string.key_address))) {
+                completeCount++;
+            }
+            if (bundle.getBoolean(getString(R.string.key_finedust))) {
                 completeCount++;
             }
             if (bundle.getBoolean(getString(R.string.key_0h_fcst))) {
@@ -74,6 +79,7 @@ public class IntroActivity extends AppCompatActivity {
         }
     }
 
+    // 토스트 출력
     private void notifyToast(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
@@ -89,7 +95,7 @@ public class IntroActivity extends AppCompatActivity {
                 ((AppManager) getApplication()).setLatitude(location.getLatitude());
                 // 경도
                 ((AppManager) getApplication()).setLongitude(location.getLongitude());
-                // 테스트용 위경도
+                // 테스트용 위경도(애뮬레이터에서 위치 정보를 잘 구하지 못하는 이유로 본 더미 데이터 사용)
                 // ((AppManager) getApplication()).setLatitude(37.44634751587985);
                 // ((AppManager) getApplication()).setLongitude(126.6816659048645);
                 // 위경도를 기상청 격자좌표로 변환
@@ -113,6 +119,29 @@ public class IntroActivity extends AppCompatActivity {
                         ((AppManager) getApplication()).setUV(UV);
 
                         setFlagMessage(getString(R.string.key_address));
+                        Log.d("Loading", "주소 로딩 완료");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }).start();
+                new Thread(() -> {
+                    try {
+                        TMCoord coord = AddressManager.transCoord(((AppManager) getApplication()).getLatitude(), ((AppManager) getApplication()).getLongitude());
+                        JSONArray stationArray = WeatherManager.getStationArray(coord.tmX, coord.tmY, getResources().getString(R.string.service_key));
+                        String nearStation = (String) ((JSONObject) stationArray.get(0)).get("stationName");
+
+                        JSONArray finedustResultArray = WeatherManager.getFinedustInfo(nearStation, getResources().getString(R.string.service_key));
+                        JSONObject findustResult = (JSONObject) finedustResultArray.get(0);
+                        // 측정소 통신 불량 시 "-"
+                        String pm10Result = (String) findustResult.get("pm10Value");
+                        String pm25Result = (String) findustResult.get("pm25Value");
+
+                        ((AppManager) getApplication()).setFinedustStation(nearStation);
+                        ((AppManager) getApplication()).setPm10(pm10Result);
+                        ((AppManager) getApplication()).setPm25(pm25Result);
+
+                        setFlagMessage(getString(R.string.key_finedust));
+                        Log.d("Loading", "미세먼지 로딩 완료");
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -124,6 +153,7 @@ public class IntroActivity extends AppCompatActivity {
                         ((AppManager) getApplication()).setCurrentWeatherInfo(currentWeatherInfo);
 
                         setFlagMessage(getString(R.string.key_0h_fcst));
+                        Log.d("Loading", "현재 날씨 로딩 완료");
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -135,6 +165,7 @@ public class IntroActivity extends AppCompatActivity {
                         ((AppManager) getApplication()).setHour24WeatherInfos(recent24HourWeatherInfo);
 
                         setFlagMessage(getString(R.string.key_24h_fcst));
+                        Log.d("Loading", "24시간 날씨 로딩 완료");
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -146,6 +177,7 @@ public class IntroActivity extends AppCompatActivity {
                         ((AppManager) getApplication()).setWeeklyTempInfo(todayWeatherInfo, 0);
 
                         setFlagMessage(getString(R.string.key_range_fcst));
+                        Log.d("Loading", "오늘 최고/최저 온도 로딩 완료");
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -158,6 +190,7 @@ public class IntroActivity extends AppCompatActivity {
                         ((AppManager) getApplication()).setWeeklyTempInfo(twoDaysWeatherInfo[1], 2);
 
                         setFlagMessage(getString(R.string.key_3d_fcst));
+                        Log.d("Loading", "3일 날씨 로딩 완료");
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -166,6 +199,7 @@ public class IntroActivity extends AppCompatActivity {
             }
         }
 
+        // 입력받은 키에 true 설정 후 핸들러 큐에 보냄
         private void setFlagMessage(String key) {
             Message message = mainHandler.obtainMessage();
             Bundle bundle = new Bundle();
@@ -181,6 +215,7 @@ public class IntroActivity extends AppCompatActivity {
         }
     };
 
+    // 최근 자외선 예보로 12시간 자외선 지수 구하기
     private int[] getUVInfo(String areaId, String serviceKey) throws IOException, ParseException {
         // 3시간 간격 발표
         final int FCST_INTERVAL = 3;
@@ -197,6 +232,7 @@ public class IntroActivity extends AppCompatActivity {
         return result;
     }
 
+    // 최근 단기예보로 24시간 날씨 구하기
     private HourlyWeatherInfo[] get24HourWeatherInfo(int nx, int ny, String serviceKey) throws IOException, ParseException {
         HourlyWeatherInfo[] HourlyInfo = new HourlyWeatherInfo[((AppManager) getApplication()).getHoursInDay()];
         LocalDateTime baseDate = DateManager.getRecentShortForecastTime();
@@ -238,6 +274,7 @@ public class IntroActivity extends AppCompatActivity {
         return HourlyInfo;
     }
 
+    // 최근 단기예보로 2 ~ 3일 날씨 구하기
     private DailyWeatherInfo[] getAfterTodayWeatherInfo(int nx, int ny, String serviceKey) throws IOException, ParseException {
         DailyWeatherInfo[] DailyInfo = new DailyWeatherInfo[((AppManager) getApplication()).getShortDayLimit()];
         LocalDateTime baseDate = DateManager.getRecentShortForecastTime();
@@ -275,6 +312,7 @@ public class IntroActivity extends AppCompatActivity {
         return DailyInfo;
     }
 
+    // 초단기 예보로 현재 날씨 구하기
     private HourlyWeatherInfo getCurrentWeatherInfo(int nx, int ny, String serviceKey) throws IOException, ParseException {
         HourlyWeatherInfo result = new HourlyWeatherInfo();
         LocalDateTime lastUltraSrtFcstTime = DateManager.getLastUltraSrtFcstTime();
@@ -310,6 +348,7 @@ public class IntroActivity extends AppCompatActivity {
         return result;
     }
 
+    // 어제의 마지막 단기 예보로 오늘 최고/최저 온도 구하기
     private DailyWeatherInfo getTodayTempRange(int nx, int ny, String serviceKey) throws IOException, ParseException {
         DailyWeatherInfo result = new DailyWeatherInfo();
         // 어제 마지막 단기예보 발표시각(하루 전 2300) 구하기
@@ -333,6 +372,7 @@ public class IntroActivity extends AppCompatActivity {
         return result;
     }
 
+    // 중기 예보를 통해 3 ~ 7일의 날씨 정보 구하기
     private DailyWeatherInfo[] getAfterThreeDaysWeatherInfo(String regId, String serviceKey) throws IOException, ParseException {
         final int MAX_INDEX = ((AppManager) getApplication()).getDaysInWeek() - ((AppManager) getApplication()).getShortDayLimit() - 1;
         DailyWeatherInfo[] result = new DailyWeatherInfo[MAX_INDEX];
@@ -354,40 +394,47 @@ public class IntroActivity extends AppCompatActivity {
         return result;
     }
 
+    // 인트로 액티비티 초기화
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_intro);
 
+        // 로딩 목록 초기화
         flagKeyArray = new ArrayList<>();
         flagKeyArray.add(getString(R.string.key_address));
+        flagKeyArray.add(getString(R.string.key_finedust));
         flagKeyArray.add(getString(R.string.key_0h_fcst));
         flagKeyArray.add(getString(R.string.key_range_fcst));
         flagKeyArray.add(getString(R.string.key_24h_fcst));
         flagKeyArray.add(getString(R.string.key_3d_fcst));
 
+        // 로딩 바 초기화
         progressBar = findViewById(R.id.prg_intro);
         progressBar.setMax(flagKeyArray.size());
         progressBar.setProgress(0);
 
+        // 위치 관리자 초기화
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
+        // 스레드 동기화를 위한 핸들러 초기화
         mainHandler = new MainHandler();
-
-        // 10초 주기로 요청
-        final int REQ_PERIOD = 1000 * 10;
-        // 1M 거리
-        final int REQ_DIST = 1;
 
         // 이벤트 리스너 설정
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
         } else {
+            // 10초 주기로 요청
+            final int REQ_PERIOD = 1000 * 10;
+            // 1M 거리
+            final int REQ_DIST = 1;
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, REQ_PERIOD, REQ_DIST, gpsLocationListener);
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, REQ_PERIOD, REQ_DIST, gpsLocationListener);
         }
 
+        // 동작하는 위치 제공자가 없으면
         if (locationManager.getProviders(true).size() == 0) {
+            // 권한 확인 메세지 띄움
             Toast.makeText(this, getResources().getString(R.string.check_permission), Toast.LENGTH_LONG).show();
         }
     }

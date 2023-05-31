@@ -47,10 +47,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void renderUI() {
         try {
+            // 현재 온도
             HourlyWeatherInfo currentWeatherInfo = ((AppManager) getApplication()).getCurrentWeatherInfo();
             int currentTemp = (int) currentWeatherInfo.getTemperature();
             txtCurrentTemp.setText(currentTemp + "°C");
 
+            // 주간 최고 / 최저 온도에서 첫 인덱스가 오늘의 데이터
             DailyWeatherInfo todayWeatherInfo = ((AppManager) getApplication()).getWeeklyTempInfo(0);
             int maxTempToday = todayWeatherInfo.getTempMax();
             int minTempToday = todayWeatherInfo.getTempMin();
@@ -60,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
             final int LARGE_DIFF_REF = 10;
             boolean isLargeDiff = maxTempToday - minTempToday >= LARGE_DIFF_REF;
 
+            // 비 내리는지 여부
             boolean isRainy;
             String ptyString = currentWeatherInfo.getPrecipitationString();
             if (ptyString.equals("비") || ptyString.equals("빗방울")) {
@@ -68,11 +71,31 @@ public class MainActivity extends AppCompatActivity {
                 isRainy = false;
             }
 
+            // 미세먼지 여부
             boolean isHighFineDust = false;
+            String pm10 = ((AppManager) getApplication()).getPm10();
+            String pm25 = ((AppManager) getApplication()).getPm25();
+            int pm10Value;
+            int pm25Value;
+            // 측정소 통신 불량 시 "-"
+            if (pm10.equals("-")) {
+                pm10Value = -1;
+            } else {
+                pm10Value = Integer.parseInt(pm10);
+            }
+            if (pm25.equals("-")) {
+                pm25Value = -1;
+            } else {
+                pm25Value = Integer.parseInt(pm25);
+            }
+            if (pm10Value >= 81 || pm25Value >= 36) {
+                isHighFineDust = true;
+            }
 
+            // 자외선 지수
             boolean isHighUV;
             int UV = ((AppManager) getApplication()).getUV()[((AppManager) getApplication()).getUVTargetIndex()];
-            final int HIGH_UV_THRESHOLD = 7;
+            final int HIGH_UV_THRESHOLD = 6;
             if (UV >= HIGH_UV_THRESHOLD) {
                 isHighUV = true;
             } else {

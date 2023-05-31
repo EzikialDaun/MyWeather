@@ -17,11 +17,67 @@ class LatXLngY {
     public int y;
 }
 
+class TMCoord {
+    public double tmX;
+    public double tmY;
+}
+
 public class AddressManager {
+    private static final String SERVICE_KEY = "KakaoAK aa138fc9cd6064e76f89db43faf65b7e";
+
+    public static TMCoord transCoord(double latitude, double longitude) {
+        TMCoord result = new TMCoord();
+        result.tmX = 0.0;
+        result.tmY = 0.0;
+
+        try {
+            final String REQUEST_URL = "https://dapi.kakao.com/v2/local/geo/transcoord.json?";
+
+            String x = Double.toString(longitude);
+            String y = Double.toString(latitude);
+            String target = "TM";
+
+            URL obj = new URL(REQUEST_URL + "x=" + x + "&y=" + y + "&output_coord=" + target);
+
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+            con.setRequestMethod("GET");
+            con.setRequestProperty("Authorization", SERVICE_KEY);
+            con.setRequestProperty("content-type", "application/json");
+            con.setDoOutput(true);
+            con.setUseCaches(false);
+
+            BufferedReader rd;
+            if (con.getResponseCode() >= 200 && con.getResponseCode() <= 300) {
+                rd = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            } else {
+                rd = new BufferedReader(new InputStreamReader(con.getErrorStream()));
+            }
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = rd.readLine()) != null) {
+                sb.append(line);
+            }
+            rd.close();
+            con.disconnect();
+            String data = sb.toString();
+
+            JSONParser parser = new JSONParser();
+            JSONObject jsonObject = (JSONObject) parser.parse(data);
+            JSONArray parse_documents = (JSONArray) jsonObject.get("documents");
+            JSONObject resultObject = (JSONObject) parse_documents.get(0);
+
+            result.tmX = (double) resultObject.get("x");
+            result.tmY = (double) resultObject.get("y");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
     public static String getAddress(double lat, double lng) {
         try {
             final String GEOCODE_URL = "https://dapi.kakao.com/v2/local/geo/coord2address.json?";
-            final String GEOCODE_USER_INFO = "KakaoAK aa138fc9cd6064e76f89db43faf65b7e";
 
             String x = Double.toString(lng);
             String y = Double.toString(lat);
@@ -31,7 +87,7 @@ public class AddressManager {
 
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
             con.setRequestMethod("GET");
-            con.setRequestProperty("Authorization", GEOCODE_USER_INFO);
+            con.setRequestProperty("Authorization", SERVICE_KEY);
             con.setRequestProperty("content-type", "application/json");
             con.setDoOutput(true);
             con.setUseCaches(false);

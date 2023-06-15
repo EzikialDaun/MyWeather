@@ -16,6 +16,7 @@ import android.os.Message;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,7 +44,48 @@ public class MainActivity extends AppCompatActivity {
     private TextView txtComment;
     private ImageView imgModel;
     private Button btnToInfo;
+    private Button btnToOption;
+    private LinearLayout layoutMain;
     private long backPressedTime = 0;
+
+    private void renderBackground() {
+        // 배경
+        if (((AppManager) getApplication()).isAutoBg()) {
+            int month = LocalDateTime.now().getMonthValue();
+            switch (month) {
+                case 3:
+                case 4:
+                case 5:
+                    layoutMain.setBackgroundResource(R.drawable.bg_spring);
+                    break;
+                case 6:
+                case 7:
+                case 8:
+                    layoutMain.setBackgroundResource(R.drawable.bg_summer);
+                    break;
+                case 9:
+                case 10:
+                case 11:
+                    layoutMain.setBackgroundResource(R.drawable.bg_autumn);
+                    break;
+                case 12:
+                case 1:
+                case 2:
+                    layoutMain.setBackgroundResource(R.drawable.bg_winter);
+                    break;
+                default:
+                    break;
+            }
+        } else if (((AppManager) getApplication()).isSpringBg()) {
+            layoutMain.setBackgroundResource(R.drawable.bg_spring);
+        } else if (((AppManager) getApplication()).isSummerBg()) {
+            layoutMain.setBackgroundResource(R.drawable.bg_summer);
+        } else if (((AppManager) getApplication()).isAutumnBg()) {
+            layoutMain.setBackgroundResource(R.drawable.bg_autumn);
+        } else if (((AppManager) getApplication()).isWinterBg()) {
+            layoutMain.setBackgroundResource(R.drawable.bg_winter);
+        }
+    }
 
     private void renderUI() {
         try {
@@ -101,6 +143,8 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 isHighUV = false;
             }
+
+            renderBackground();
 
             // 위 조건에 따라 코디 및 멘트 추천
             if (currentTemp >= 33) {
@@ -457,6 +501,8 @@ public class MainActivity extends AppCompatActivity {
             }
             btnToInfo.setEnabled(true);
             btnToInfo.setText(R.string.more_info);
+            btnToOption.setEnabled(true);
+            btnToOption.setText(R.string.option);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -479,11 +525,20 @@ public class MainActivity extends AppCompatActivity {
         txtComment = findViewById(R.id.textview_comment);
         imgModel = findViewById(R.id.imageview_model);
         btnToInfo = findViewById(R.id.button_to_info);
+        btnToOption = findViewById(R.id.button_to_option);
+        layoutMain = findViewById(R.id.layoutMain);
 
         // Info Activity로 이동
         btnToInfo.setOnClickListener(view -> {
             Intent intent = new Intent(getApplicationContext(), InfoActivity.class);
             startActivity(intent);
+        });
+
+        // Option Activity로 이동
+        btnToOption.setOnClickListener(view -> {
+            Intent intent = new Intent(getApplicationContext(), OptionsActivity.class);
+            startActivity(intent);
+            finish();
         });
 
         renderUI();

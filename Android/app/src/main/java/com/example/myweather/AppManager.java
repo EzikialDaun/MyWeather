@@ -19,6 +19,11 @@ public class AppManager extends Application {
     private HourlyWeatherInfo currentWeatherInfo;
     private HourlyWeatherInfo[] hour24WeatherInfos = new HourlyWeatherInfo[HOURS_IN_DAY];
     private DailyWeatherInfo[] weeklyTempInfo = new DailyWeatherInfo[DAYS_IN_WEEK];
+    private boolean isAutoBg = true;
+    private boolean isSpringBg = false;
+    private boolean isSummerBg = false;
+    private boolean isAutumnBg = false;
+    private boolean isWinterBg = false;
 
     public int[] getUV() {
         return UV;
@@ -135,5 +140,45 @@ public class AppManager extends Application {
 
     public void setFinedustStation(String finedustStation) {
         this.finedustStation = finedustStation;
+    }
+
+    public boolean isAutoBg() {
+        return isAutoBg;
+    }
+
+    public void setAutoBg(boolean autoBg) {
+        isAutoBg = autoBg;
+    }
+
+    public boolean isSpringBg() {
+        return isSpringBg;
+    }
+
+    public void setSpringBg(boolean springBg) {
+        isSpringBg = springBg;
+    }
+
+    public boolean isSummerBg() {
+        return isSummerBg;
+    }
+
+    public void setSummerBg(boolean summerBg) {
+        isSummerBg = summerBg;
+    }
+
+    public boolean isAutumnBg() {
+        return isAutumnBg;
+    }
+
+    public void setAutumnBg(boolean autumnBg) {
+        isAutumnBg = autumnBg;
+    }
+
+    public boolean isWinterBg() {
+        return isWinterBg;
+    }
+
+    public void setWinterBg(boolean winterBg) {
+        isWinterBg = winterBg;
     }
 }

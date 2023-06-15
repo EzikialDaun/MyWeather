@@ -15,6 +15,7 @@
     <string name="model_image">모델 이미지</string>
     <string name="service_key">A6z4dofotOGc96pa7%2FDl3WgE2cW1orNWcou7slmHGBqY9G1Z9LMaVoO1dETagYiNdaPI%2Fe6vGYftFK9e2EjEZA%3D%3D</string>
     <string name="more_info">더 자세한 날씨 정보는?</string>
+    <string name="option">⚙</string>
     <string name="current_temp">CURRENT_TEMP</string>
     <string name="precipitation">PRECIPITATION</string>
     <string name="temperature">TMP</string>
@@ -39,4 +40,6 @@
     <string name="key_range_fcst">key_range_fcst</string>
     <string name="key_3d_fcst">key_3d_fcst</string>
     <string name="key_timeout">key_timeout</string>
+    <string name="key_uv">key_uv</string>
+    <string name="key_midterm">key_midterm</string>
 </resources>

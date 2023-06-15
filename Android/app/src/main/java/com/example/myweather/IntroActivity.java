@@ -61,6 +61,12 @@ public class IntroActivity extends AppCompatActivity {
             if (bundle.getBoolean(getString(R.string.key_3d_fcst))) {
                 completeCount++;
             }
+            if (bundle.getBoolean(getString(R.string.key_midterm))) {
+                completeCount++;
+            }
+            if (bundle.getBoolean(getString(R.string.key_uv))) {
+                completeCount++;
+            }
             boolean isTimeout = bundle.getBoolean(getString(R.string.key_timeout));
             progressBar.setProgress(completeCount);
             if (completeCount == flagKeyArray.size()) {
@@ -91,9 +97,7 @@ public class IntroActivity extends AppCompatActivity {
             if (location != null) {
                 // 1회만 정보 필요하기 때문에 리스너 삭제
                 locationManager.removeUpdates(gpsLocationListener);
-                // 위도
                 ((AppManager) getApplication()).setLatitude(location.getLatitude());
-                // 경도
                 ((AppManager) getApplication()).setLongitude(location.getLongitude());
                 // 테스트용 위경도(애뮬레이터에서 위치 정보를 잘 구하지 못하는 이유로 본 더미 데이터 사용)
                 // ((AppManager) getApplication()).setLatitude(37.44634751587985);
@@ -106,20 +110,35 @@ public class IntroActivity extends AppCompatActivity {
                         // 카카오 API 리버스 지오코딩
                         String address = AddressManager.getAddress(((AppManager) getApplication()).getLatitude(), ((AppManager) getApplication()).getLongitude());
                         ((AppManager) getApplication()).setAddress(address);
-
-                        // 4 ~ 7일 최고 최저 기온(최근 중기예보)
-                        DailyWeatherInfo[] afterThreeDaysWeatherInfo = getAfterThreeDaysWeatherInfo(AddressManager.addressToRegId(address), getResources().getString(R.string.service_key));
-                        ((AppManager) getApplication()).setWeeklyTempInfo(afterThreeDaysWeatherInfo[0], 3);
-                        ((AppManager) getApplication()).setWeeklyTempInfo(afterThreeDaysWeatherInfo[1], 4);
-                        ((AppManager) getApplication()).setWeeklyTempInfo(afterThreeDaysWeatherInfo[2], 5);
-                        ((AppManager) getApplication()).setWeeklyTempInfo(afterThreeDaysWeatherInfo[3], 6);
-
-                        // 자외선 지수
-                        int[] UV = getUVInfo(AddressManager.addressToAreaId(address), getResources().getString(R.string.service_key));
-                        ((AppManager) getApplication()).setUV(UV);
-
+                        Log.d("Loading", "리버스 지오코딩 완료");
                         setFlagMessage(getString(R.string.key_address));
-                        Log.d("Loading", "주소 로딩 완료");
+
+                        new Thread(() -> {
+                            try {
+                                // 4 ~ 7일 최고 최저 기온(최근 중기예보)
+                                DailyWeatherInfo[] afterThreeDaysWeatherInfo = getAfterThreeDaysWeatherInfo(AddressManager.addressToRegId(address), getResources().getString(R.string.service_key));
+                                ((AppManager) getApplication()).setWeeklyTempInfo(afterThreeDaysWeatherInfo[0], 3);
+                                ((AppManager) getApplication()).setWeeklyTempInfo(afterThreeDaysWeatherInfo[1], 4);
+                                ((AppManager) getApplication()).setWeeklyTempInfo(afterThreeDaysWeatherInfo[2], 5);
+                                ((AppManager) getApplication()).setWeeklyTempInfo(afterThreeDaysWeatherInfo[3], 6);
+                                Log.d("Loading", "중기예보 로딩 완료");
+                                setFlagMessage(getString(R.string.key_midterm));
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }).start();
+
+                        new Thread(() -> {
+                            try {
+                                // 자외선 지수
+                                int[] UV = getUVInfo(AddressManager.addressToAreaId(address), getResources().getString(R.string.service_key));
+                                ((AppManager) getApplication()).setUV(UV);
+                                Log.d("Loading", "자외선 로딩 완료");
+                                setFlagMessage(getString(R.string.key_uv));
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }).start();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -408,6 +427,8 @@ public class IntroActivity extends AppCompatActivity {
         flagKeyArray.add(getString(R.string.key_range_fcst));
         flagKeyArray.add(getString(R.string.key_24h_fcst));
         flagKeyArray.add(getString(R.string.key_3d_fcst));
+        flagKeyArray.add(getString(R.string.key_uv));
+        flagKeyArray.add(getString(R.string.key_midterm));
 
         // 로딩 바 초기화
         progressBar = findViewById(R.id.prg_intro);

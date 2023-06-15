@@ -4,6 +4,111 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="20dp"
     tools:context=".OptionsActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:layout_editor_absoluteX="20dp"
+        tools:layout_editor_absoluteY="20dp">
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:fontFamily="@font/dovemayo_gothic"
+            android:text="배경 이미지"
+            android:textSize="24sp" />
+
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/myshape"
+            android:padding="10dp">
+
+            <RadioButton
+                android:id="@+id/radioAuto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:fontFamily="@font/dovemayo_gothic"
+                android:text="자동 선택" />
+
+            <RadioButton
+                android:id="@+id/radioSpring"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/dovemayo_gothic"
+                android:text="봄" />
+
+            <RadioButton
+                android:id="@+id/radioSummer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/dovemayo_gothic"
+                android:text="여름" />
+
+            <RadioButton
+                android:id="@+id/radioAutumn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/dovemayo_gothic"
+                android:text="가을" />
+
+            <RadioButton
+                android:id="@+id/radioWinter"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/dovemayo_gothic"
+                android:text="겨울" />
+
+        </RadioGroup>
+
+        <Button
+            android:id="@+id/btnApply"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/dovemayo_gothic"
+            android:text="적용"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:layout_marginBottom="10dp"
+            android:fontFamily="@font/dovemayo_gothic"
+            android:text="Trouble Shooting"
+            android:textSize="24sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/myshape"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <TextView
+                android:id="@+id/textView5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/dovemayo_gothic"
+                android:text="✉ ezikial142857@gmail.com"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/textView6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/dovemayo_gothic"
+                android:text="☎ 010-2756-7786"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

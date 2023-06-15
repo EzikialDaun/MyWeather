@@ -4,21 +4,43 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_spring"
     tools:context=".MainActivity">
 
     <LinearLayout
+        android:id="@+id/layoutMain"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/button_to_option"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:background="@android:color/transparent"
+                android:enabled="false"
+                android:fontFamily="@font/dovemayo_gothic"
+                android:insetTop="6dp"
+                android:insetBottom="6dp"
+                android:minHeight="16dp"
+                android:textColor="@color/main_font"
+                android:textSize="24sp" />
+
+        </LinearLayout>
+
         <TextView
             android:id="@+id/textview_ctemp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="20dp"
             android:fontFamily="@font/dovemayo_gothic"
             android:gravity="center"
             android:textAlignment="center"
@@ -40,7 +62,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="20dp"
             android:layout_marginRight="20dp"
             android:background="@drawable/myshape"
             android:fontFamily="@font/dovemayo_gothic"
